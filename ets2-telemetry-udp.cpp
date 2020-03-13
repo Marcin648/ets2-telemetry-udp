@@ -16,6 +16,10 @@
 #else
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 #endif
 
 #define VERSION "v0.1.0"
@@ -97,7 +101,11 @@ bool net_init(){
     #endif
 
     if(net_socket != -1){
+        #ifdef _WIN32
         closesocket(net_socket);
+        #else
+        close(net_socket);
+        #endif
         net_socket = -1;
     }
 
@@ -121,7 +129,11 @@ bool net_init(){
 
     if(non_blocking_success != 0){
         log(SCS_LOG_TYPE_error, "Failed to set socket non blocking.");
+        #ifdef _WIN32
         closesocket(net_socket);
+        #else
+        close(net_socket);
+        #endif
         net_socket = -1;
         return false;
     }
@@ -152,7 +164,11 @@ bool net_init(){
 void net_close(){
     if(net_initialized){
         if(net_socket != -1){
+            #ifdef _WIN32
             closesocket(net_socket);
+            #else
+            close(net_socket);
+            #endif
             net_socket = -1;
         }
         #ifdef _WIN32
