@@ -1,6 +1,9 @@
 #pragma once
 #include <cstdint>
 
+const uint32_t TELE_TRUCK_WHEEL_COUNT = 10;
+const uint32_t TELE_TRAILER_WHEEL_COUNT = 18;
+
 #pragma pack(push, 1)
 struct telemetry_fvector_t {
     float x;
@@ -50,7 +53,6 @@ struct telemetry_truck_s {
     float effective_clutch;
     float cruise_control;
     uint32_t hshifter_slot;
-    uint8_t hshifter_selector[4]; // TODO index??
     uint8_t parking_brake;
     uint8_t motor_brake;
     uint32_t retarder_level;
@@ -97,14 +99,14 @@ struct telemetry_truck_s {
     float navigation_distance;
     float navigation_time;
     float navigation_speed_limit;
-    float wheel_susp_deflection[4]; // TODO index??
-    uint8_t wheel_on_ground[4]; // TODO index??
-    uint32_t wheel_substance[4]; // TODO index??
-    float wheel_velocity[4]; // TODO index??
-    float wheel_steering[4]; // TODO index??
-    float wheel_rotation[4]; // TODO index??
-    float wheel_lift[4]; // TODO index??
-    float wheel_lift_offset[4]; // TODO index??
+    float wheel_susp_deflection[TELE_TRUCK_WHEEL_COUNT];
+    uint8_t wheel_on_ground[TELE_TRUCK_WHEEL_COUNT];
+    uint32_t wheel_substance[TELE_TRUCK_WHEEL_COUNT];
+    float wheel_velocity[TELE_TRUCK_WHEEL_COUNT];
+    float wheel_steering[TELE_TRUCK_WHEEL_COUNT];
+    float wheel_rotation[TELE_TRUCK_WHEEL_COUNT];
+    float wheel_lift[TELE_TRUCK_WHEEL_COUNT];
+    float wheel_lift_offset[TELE_TRUCK_WHEEL_COUNT];
 };
 
 
@@ -118,12 +120,12 @@ struct telemetry_trailer_s{
 
     float wear_chassis;
 
-    float wheel_susp_deflection[4]; // TODO index??
-    uint8_t wheel_on_ground[4]; // TODO index??
-    uint32_t wheel_substance[4]; // TODO index??
-    float wheel_velocity[4]; // TODO index??
-    float wheel_steering[4]; // TODO index??
-    float wheel_rotation[4]; // TODO index??
+    float wheel_susp_deflection[TELE_TRAILER_WHEEL_COUNT];
+    uint8_t wheel_on_ground[TELE_TRAILER_WHEEL_COUNT];
+    uint32_t wheel_substance[TELE_TRAILER_WHEEL_COUNT];
+    float wheel_velocity[TELE_TRAILER_WHEEL_COUNT];
+    float wheel_steering[TELE_TRAILER_WHEEL_COUNT];
+    float wheel_rotation[TELE_TRAILER_WHEEL_COUNT];
 };
 
 #pragma pack(pop)

@@ -10,6 +10,8 @@
 #include <amtrucks/scssdk_ats.h>
 #include <amtrucks/scssdk_telemetry_ats.h>
 
+#include <string>
+
 #ifdef _WIN32
 #include <winsock2.h>
 #include <windows.h>
@@ -228,6 +230,14 @@ SCSAPI_VOID telemetry_frame_end(const scs_event_t /*event*/, const void *const e
         log(SCS_LOG_TYPE_message, "rpm: %f", telemetry_truck.engine_rpm);
         log(SCS_LOG_TYPE_message, "connected: %i", telemetry_trailer.connected);
         log(SCS_LOG_TYPE_message, "game time: %i", telemetry_common.game_time);
+        std::string a = "";
+        
+        for(size_t i = 0; i < TELE_TRAILER_WHEEL_COUNT; i++){
+            a += std::to_string(telemetry_trailer.wheel_velocity[i]) + ", ";
+        }
+
+        log(SCS_LOG_TYPE_message, "telemetry_trailer.wheel_velocity: %s", a.c_str());
+
         sockaddr_in bind_addr;
         bind_addr.sin_family = AF_INET;
         bind_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
@@ -283,7 +293,6 @@ SCSAPI_RESULT scs_telemetry_init(const scs_u32_t version, const scs_telemetry_in
     REG_CHANNEL(TRUCK_CHANNEL_effective_clutch, float, &telemetry_truck.effective_clutch);
     REG_CHANNEL(TRUCK_CHANNEL_cruise_control, float, &telemetry_truck.cruise_control);
     REG_CHANNEL(TRUCK_CHANNEL_hshifter_slot, u32, &telemetry_truck.hshifter_slot);
-    //REG_INDEXED_CHANNEL(TRUCK_CHANNEL_hshifter_selector, 0, indexed_bool, &telemetry_truck.hshifter_selector);
     REG_CHANNEL(TRUCK_CHANNEL_parking_brake, bool, &telemetry_truck.parking_brake);
     REG_CHANNEL(TRUCK_CHANNEL_motor_brake, bool, &telemetry_truck.motor_brake);
     REG_CHANNEL(TRUCK_CHANNEL_retarder_level, u32, &telemetry_truck.retarder_level);
@@ -330,14 +339,17 @@ SCSAPI_RESULT scs_telemetry_init(const scs_u32_t version, const scs_telemetry_in
     REG_CHANNEL(TRUCK_CHANNEL_navigation_distance, float, &telemetry_truck.navigation_distance);
     REG_CHANNEL(TRUCK_CHANNEL_navigation_time, float, &telemetry_truck.navigation_time);
     REG_CHANNEL(TRUCK_CHANNEL_navigation_speed_limit, float, &telemetry_truck.navigation_speed_limit);
-    //REG_INDEXED_CHANNEL(TRUCK_CHANNEL_wheel_susp_deflection, 0, indexed_float, &telemetry_truck.wheel_susp_deflection);
-    //REG_INDEXED_CHANNEL(TRUCK_CHANNEL_wheel_on_ground, 0, indexed_bool, &telemetry_truck.wheel_on_ground);
-    //REG_INDEXED_CHANNEL(TRUCK_CHANNEL_wheel_substance, 0, indexed_u32, &telemetry_truck.wheel_substance);
-    //REG_INDEXED_CHANNEL(TRUCK_CHANNEL_wheel_velocity, 0, indexed_float, &telemetry_truck.wheel_velocity);
-    //REG_INDEXED_CHANNEL(TRUCK_CHANNEL_wheel_steering, 0, indexed_float, &telemetry_truck.wheel_steering);
-    //REG_INDEXED_CHANNEL(TRUCK_CHANNEL_wheel_rotation, 0, indexed_float, &telemetry_truck.wheel_rotation);
-    //REG_INDEXED_CHANNEL(TRUCK_CHANNEL_wheel_lift, 0, indexed_float, &telemetry_truck.wheel_lift);
-    //REG_INDEXED_CHANNEL(TRUCK_CHANNEL_wheel_lift_offset, 0, indexed_float, &telemetry_truck.wheel_lift_offset);
+
+    for(size_t i = 0; i < TELE_TRUCK_WHEEL_COUNT; i++){
+        REG_INDEXED_CHANNEL(TRUCK_CHANNEL_wheel_susp_deflection, i, float, &telemetry_truck.wheel_susp_deflection[i]);
+        REG_INDEXED_CHANNEL(TRUCK_CHANNEL_wheel_on_ground, i, bool, &telemetry_truck.wheel_on_ground[i]);
+        REG_INDEXED_CHANNEL(TRUCK_CHANNEL_wheel_substance, i, u32, &telemetry_truck.wheel_substance[i]);
+        REG_INDEXED_CHANNEL(TRUCK_CHANNEL_wheel_velocity, i, float, &telemetry_truck.wheel_velocity[i]);
+        REG_INDEXED_CHANNEL(TRUCK_CHANNEL_wheel_steering, i, float, &telemetry_truck.wheel_steering[i]);
+        REG_INDEXED_CHANNEL(TRUCK_CHANNEL_wheel_rotation, i, float, &telemetry_truck.wheel_rotation[i]);
+        REG_INDEXED_CHANNEL(TRUCK_CHANNEL_wheel_lift, i, float, &telemetry_truck.wheel_lift[i]);
+        REG_INDEXED_CHANNEL(TRUCK_CHANNEL_wheel_lift_offset, i, float, &telemetry_truck.wheel_lift_offset[i]);
+    }
 
     // Trailer channel
     REG_CHANNEL(TRAILER_CHANNEL_connected, bool, &telemetry_trailer.connected);
@@ -347,15 +359,20 @@ SCSAPI_RESULT scs_telemetry_init(const scs_u32_t version, const scs_telemetry_in
     REG_CHANNEL(TRAILER_CHANNEL_local_linear_acceleration, fvector, &telemetry_trailer.local_linear_acceleration);
     REG_CHANNEL(TRAILER_CHANNEL_local_angular_acceleration, fvector, &telemetry_trailer.local_angular_acceleration);
     REG_CHANNEL(TRAILER_CHANNEL_wear_chassis, float, &telemetry_trailer.wear_chassis);
-    // REG_INDEXED_CHANNEL(TRAILER_CHANNEL_wheel_susp_deflection, 0, indexed_float, &telemetry_trailer.wheel_susp_deflection);
-    // REG_INDEXED_CHANNEL(TRAILER_CHANNEL_wheel_on_ground, 0, indexed_bool, &telemetry_trailer.wheel_on_ground);
-    // REG_INDEXED_CHANNEL(TRAILER_CHANNEL_wheel_substance, 0, indexed_u32, &telemetry_trailer.wheel_substance);
-    // REG_INDEXED_CHANNEL(TRAILER_CHANNEL_wheel_velocity, 0, indexed_float, &telemetry_trailer.wheel_velocity);
-    // REG_INDEXED_CHANNEL(TRAILER_CHANNEL_wheel_steering, 0, indexed_float, &telemetry_trailer.wheel_steering);
-    // REG_INDEXED_CHANNEL(TRAILER_CHANNEL_wheel_rotation, 0, indexed_float, &telemetry_trailer.wheel_rotation);
+
+    for(size_t i = 0; i < TELE_TRAILER_WHEEL_COUNT; i++){
+        REG_INDEXED_CHANNEL(TRAILER_CHANNEL_wheel_susp_deflection, i, float, &telemetry_trailer.wheel_susp_deflection[i]);
+        REG_INDEXED_CHANNEL(TRAILER_CHANNEL_wheel_on_ground, i, bool, &telemetry_trailer.wheel_on_ground[i]);
+        REG_INDEXED_CHANNEL(TRAILER_CHANNEL_wheel_substance, i, u32, &telemetry_trailer.wheel_substance[i]);
+        REG_INDEXED_CHANNEL(TRAILER_CHANNEL_wheel_velocity, i, float, &telemetry_trailer.wheel_velocity[i]);
+        REG_INDEXED_CHANNEL(TRAILER_CHANNEL_wheel_steering, i, float, &telemetry_trailer.wheel_steering[i]);
+        REG_INDEXED_CHANNEL(TRAILER_CHANNEL_wheel_rotation, i, float, &telemetry_trailer.wheel_rotation[i]);
+    }
 
     log(SCS_LOG_TYPE_message, "Telemetry UDP " VERSION);
-    log(SCS_LOG_TYPE_message, "Truck telemetry size: %i", sizeof(telemetry_truck_s));
+    log(SCS_LOG_TYPE_message, "Common telemetry size: %zi", sizeof(telemetry_common_s));
+    log(SCS_LOG_TYPE_message, "Truck telemetry size: %zi", sizeof(telemetry_truck_s));
+    log(SCS_LOG_TYPE_message, "Trailer telemetry size: %zi", sizeof(telemetry_trailer_s));
     if(!net_initialized){
         if(!net_init()){
             log(SCS_LOG_TYPE_error, "Failed to initialize network.");
