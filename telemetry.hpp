@@ -18,9 +18,14 @@ struct __attribute__((packed)) telemetry_fplacement_t {
     telemetry_euler_t orientation;
 };
 
+struct __attribute__((packed)) telemetry_common_s {
+    uint8_t game_paused;
+    float local_scale;
+    uint32_t game_time;
+    int32_t next_rest_stop;
+};
 
-
-struct telemetry_truck_s {
+struct __attribute__((packed)) telemetry_truck_s {
     telemetry_fplacement_t world_placement;
     telemetry_fvector_t local_linear_velocity;
     telemetry_fvector_t local_angular_velocity;
@@ -102,7 +107,7 @@ struct telemetry_truck_s {
 };
 
 
-struct telemetry_trailer_s{
+struct __attribute__((packed)) telemetry_trailer_s{
     uint8_t connected;
     telemetry_fplacement_t world_placement;
     telemetry_fvector_t local_linear_velocity;

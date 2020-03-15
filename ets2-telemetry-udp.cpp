@@ -35,6 +35,7 @@
 
 telemetry_truck_s telemetry_truck;
 telemetry_trailer_s telemetry_trailer;
+telemetry_common_s telemetry_common;
 
 /*
     Log
@@ -203,11 +204,11 @@ SCSAPI_VOID telemetry_store_dplacement(const scs_string_t name, const scs_u32_t 
 // API
 
 SCSAPI_VOID telemetry_game_start(const scs_event_t /*event*/, const void *const /*event_info*/, const scs_context_t /*context*/){
-    //telemetry.game_paused = 0;
+    telemetry_common.game_paused = 0;
 }
 
 SCSAPI_VOID telemetry_game_pause(const scs_event_t /*event*/, const void *const /*event_info*/, const scs_context_t /*context*/){
-    //telemetry.game_paused = 1;
+    telemetry_common.game_paused = 1;
 }
 
 SCSAPI_VOID telemetry_frame_start(const scs_event_t /*event*/, const void *const event_info, const scs_context_t /*context*/){
@@ -226,6 +227,7 @@ SCSAPI_VOID telemetry_frame_end(const scs_event_t /*event*/, const void *const e
         log(SCS_LOG_TYPE_message, "speed: %f km/s", telemetry_truck.speed * 3.6f);
         log(SCS_LOG_TYPE_message, "rpm: %f", telemetry_truck.engine_rpm);
         log(SCS_LOG_TYPE_message, "connected: %i", telemetry_trailer.connected);
+        log(SCS_LOG_TYPE_message, "game time: %i", telemetry_common.game_time);
         sockaddr_in bind_addr;
         bind_addr.sin_family = AF_INET;
         bind_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
@@ -252,6 +254,11 @@ SCSAPI_RESULT scs_telemetry_init(const scs_u32_t version, const scs_telemetry_in
     REG_EVENT(SCS_TELEMETRY_EVENT_paused, telemetry_game_pause);
     REG_EVENT(SCS_TELEMETRY_EVENT_started, telemetry_game_start);
     
+    // Common channel
+    REG_CHANNEL(CHANNEL_local_scale, float, &telemetry_common.local_scale);
+    REG_CHANNEL(CHANNEL_game_time, u32, &telemetry_common.game_time);
+    REG_CHANNEL(CHANNEL_next_rest_stop, s32, &telemetry_common.next_rest_stop);
+
     // Truck channel
     REG_CHANNEL(TRUCK_CHANNEL_world_placement, dplacement, &telemetry_truck.world_placement);
     REG_CHANNEL(TRUCK_CHANNEL_local_linear_velocity, fvector, &telemetry_truck.local_linear_velocity);
@@ -340,7 +347,6 @@ SCSAPI_RESULT scs_telemetry_init(const scs_u32_t version, const scs_telemetry_in
     REG_CHANNEL(TRAILER_CHANNEL_local_linear_acceleration, fvector, &telemetry_trailer.local_linear_acceleration);
     REG_CHANNEL(TRAILER_CHANNEL_local_angular_acceleration, fvector, &telemetry_trailer.local_angular_acceleration);
     REG_CHANNEL(TRAILER_CHANNEL_wear_chassis, float, &telemetry_trailer.wear_chassis);
-
     // REG_INDEXED_CHANNEL(TRAILER_CHANNEL_wheel_susp_deflection, 0, indexed_float, &telemetry_trailer.wheel_susp_deflection);
     // REG_INDEXED_CHANNEL(TRAILER_CHANNEL_wheel_on_ground, 0, indexed_bool, &telemetry_trailer.wheel_on_ground);
     // REG_INDEXED_CHANNEL(TRAILER_CHANNEL_wheel_substance, 0, indexed_u32, &telemetry_trailer.wheel_substance);
