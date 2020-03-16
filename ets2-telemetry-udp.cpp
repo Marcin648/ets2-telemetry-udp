@@ -115,12 +115,12 @@ bool net_init(){
         return false;
     }
 
-    sockaddr_in bind_addr;
+    /*sockaddr_in bind_addr;
     bind_addr.sin_family = AF_INET;
     bind_addr.sin_addr.s_addr = INADDR_ANY;
     bind_addr.sin_port = htons(BIND_PORT);
     
-    /*int bind_success = bind(net_socket, (sockaddr*)&bind_addr, sizeof(bind_addr));
+    int bind_success = bind(net_socket, (sockaddr*)&bind_addr, sizeof(bind_addr));
     if(bind_success == -1){
         #ifdef _WIN32
             log(SCS_LOG_TYPE_error, "Failed to assign address to socket. (%s)", WSAGetLastError());
@@ -158,30 +158,30 @@ void net_close(){
 
 // STORING
 
-SCSAPI_VOID telemetry_store_bool(const scs_string_t name, const scs_u32_t index, const scs_value_t *const value, const scs_context_t context){
+SCSAPI_VOID telemetry_store_bool(const scs_string_t /*name*/, const scs_u32_t /*index*/, const scs_value_t *const value, const scs_context_t context){
     *static_cast<uint8_t *>(context) = value->value_bool.value;
 }
 
-SCSAPI_VOID telemetry_store_s32(const scs_string_t name, const scs_u32_t index, const scs_value_t *const value, const scs_context_t context){
+SCSAPI_VOID telemetry_store_s32(const scs_string_t /*name*/, const scs_u32_t /*index*/, const scs_value_t *const value, const scs_context_t context){
     *static_cast<int32_t *>(context) = value->value_s32.value; 
 }
 
-SCSAPI_VOID telemetry_store_u32(const scs_string_t name, const scs_u32_t index, const scs_value_t *const value, const scs_context_t context){
+SCSAPI_VOID telemetry_store_u32(const scs_string_t /*name*/, const scs_u32_t /*index*/, const scs_value_t *const value, const scs_context_t context){
     *static_cast<uint32_t *>(context) = value->value_u32.value; 
 }
 
-SCSAPI_VOID telemetry_store_float(const scs_string_t name, const scs_u32_t index, const scs_value_t *const value, const scs_context_t context){
+SCSAPI_VOID telemetry_store_float(const scs_string_t /*name*/, const scs_u32_t /*index*/, const scs_value_t *const value, const scs_context_t context){
     *static_cast<float *>(context) = value->value_float.value; 
 }
 
-SCSAPI_VOID telemetry_store_fvector(const scs_string_t name, const scs_u32_t index, const scs_value_t *const value, const scs_context_t context){
+SCSAPI_VOID telemetry_store_fvector(const scs_string_t /*name*/, const scs_u32_t /*index*/, const scs_value_t *const value, const scs_context_t context){
     telemetry_fvector_t *fvector = static_cast<telemetry_fvector_t *>(context);
     fvector->x = value->value_fvector.x;
     fvector->y = value->value_fvector.y;
     fvector->z = value->value_fvector.z;
 }
 
-SCSAPI_VOID telemetry_store_fplacement(const scs_string_t name, const scs_u32_t index, const scs_value_t *const value, const scs_context_t context){
+SCSAPI_VOID telemetry_store_fplacement(const scs_string_t /*name*/, const scs_u32_t /*index*/, const scs_value_t *const value, const scs_context_t context){
     telemetry_fplacement_t *fplacement = static_cast<telemetry_fplacement_t *>(context);
     fplacement->position.x = value->value_fplacement.position.x;
     fplacement->position.y = value->value_fplacement.position.y;
@@ -192,7 +192,7 @@ SCSAPI_VOID telemetry_store_fplacement(const scs_string_t name, const scs_u32_t 
     fplacement->orientation.roll = value->value_fplacement.orientation.roll;
 }
 
-SCSAPI_VOID telemetry_store_dplacement(const scs_string_t name, const scs_u32_t index, const scs_value_t *const value, const scs_context_t context){
+SCSAPI_VOID telemetry_store_dplacement(const scs_string_t /*name*/, const scs_u32_t /*index*/, const scs_value_t *const value, const scs_context_t context){
     telemetry_fplacement_t *fplacement = static_cast<telemetry_fplacement_t *>(context);
     fplacement->position.x = value->value_dplacement.position.x;
     fplacement->position.y = value->value_dplacement.position.y;
@@ -213,11 +213,11 @@ SCSAPI_VOID telemetry_game_pause(const scs_event_t /*event*/, const void *const 
     telemetry_common.game_paused = 1;
 }
 
-SCSAPI_VOID telemetry_frame_start(const scs_event_t /*event*/, const void *const event_info, const scs_context_t /*context*/){
+SCSAPI_VOID telemetry_frame_start(const scs_event_t /*event*/, const void *const /*event_info*/, const scs_context_t /*context*/){
     ;
 }
 
-SCSAPI_VOID telemetry_frame_end(const scs_event_t /*event*/, const void *const event_info, const scs_context_t /*context*/){
+SCSAPI_VOID telemetry_frame_end(const scs_event_t /*event*/, const void *const /*event_info*/, const scs_context_t /*context*/){
     if(net_initialized && net_socket != -1){
         /*
         log(SCS_LOG_TYPE_message, "Frame end: %u", rand());

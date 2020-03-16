@@ -11,6 +11,7 @@ include_directories(ets2-telemetry-udp "./sdk")
 if(WIN32)
     target_link_libraries(ets2-telemetry-udp wsock32 ws2_32)
 endif()
+target_compile_options(ets2-telemetry-udp PRIVATE -Wall -Wextra)
 
 set(CMAKE_SHARED_LIBRARY_PREFIX "")
 
