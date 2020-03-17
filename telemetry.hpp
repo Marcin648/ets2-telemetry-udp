@@ -173,20 +173,24 @@ struct telemetry_config_trailer_s{
     telemetry_fvector_t wheel_position[TELE_TRAILER_WHEEL_COUNT];
 };
 
-struct telemetry_config_trailer_s{
-    char id[TELE_STR_SIZE];
-    char cargo_accessory_id[TELE_STR_SIZE];
-    telemetry_fvector_t hook_position;
-    char brand_id[TELE_STR_SIZE];
-    char brand[TELE_STR_SIZE];
-    char name[TELE_STR_SIZE];
-    char chain_type[TELE_STR_SIZE];
-    char body_type[TELE_STR_SIZE];
-    char license_plate[TELE_STR_SIZE];
-    char license_plate_country[TELE_STR_SIZE];
-    char license_plate_country_id[TELE_STR_SIZE];
-    uint32_t wheel_count;
-    telemetry_fvector_t wheel_position[TELE_TRAILER_WHEEL_COUNT];
+struct telemetry_config_job_s{
+    char cargo_id[TELE_STR_SIZE];
+    char cargo[TELE_STR_SIZE];
+    float cargo_mass;
+    char destination_city_id[TELE_STR_SIZE];
+    char destination_city[TELE_STR_SIZE];
+    char source_city_id[TELE_STR_SIZE];
+    char source_city[TELE_STR_SIZE];
+    char destination_company_id[TELE_STR_SIZE];
+    char destination_company[TELE_STR_SIZE];
+    char source_company_id[TELE_STR_SIZE];
+    char source_company[TELE_STR_SIZE];
+    uint64_t income;
+    uint32_t delivery_time;
+    uint8_t is_cargo_loaded;
+    char job_market[TELE_STR_SIZE];
+    uint8_t special_job;
+    uint32_t planned_distance_km;
 };
 
 #pragma pack(pop)

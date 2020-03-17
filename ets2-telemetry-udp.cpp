@@ -43,6 +43,7 @@ telemetry_common_s telemetry_common;
 
 telemetry_config_truck_s telemetry_config_truck;
 telemetry_config_trailer_s telemetry_config_trailer;
+telemetry_config_job_s telemetry_config_job;
 
 /*
     Log
@@ -175,6 +176,14 @@ SCSAPI_VOID telemetry_store_u32(const scs_string_t /*name*/, const scs_u32_t /*i
     *static_cast<uint32_t *>(context) = value->value_u32.value; 
 }
 
+SCSAPI_VOID telemetry_store_s64(const scs_string_t /*name*/, const scs_u32_t /*index*/, const scs_value_t *const value, const scs_context_t context){
+    *static_cast<int64_t *>(context) = value->value_s64.value; 
+}
+
+SCSAPI_VOID telemetry_store_u64(const scs_string_t /*name*/, const scs_u32_t /*index*/, const scs_value_t *const value, const scs_context_t context){
+    *static_cast<uint64_t *>(context) = value->value_u64.value; 
+}
+
 SCSAPI_VOID telemetry_store_float(const scs_string_t /*name*/, const scs_u32_t /*index*/, const scs_value_t *const value, const scs_context_t context){
     *static_cast<float *>(context) = value->value_float.value; 
 }
@@ -269,6 +278,30 @@ void config_store_trailer(const scs_telemetry_configuration_t *config){
     }
 }
 
+void config_store_job(const scs_telemetry_configuration_t *config){
+    memset(&telemetry_config_job, 0, sizeof(telemetry_config_job_s));
+    for(auto *attr = config->attributes; attr->name; attr++){
+        std::string name(attr->name);
+        if(name == SCS_TELEMETRY_CONFIG_ATTRIBUTE_cargo_id){ STORE_CONFIG_ATTRIBUTE(string, &attr->value, &telemetry_config_job.cargo_id); }
+        else if(name == SCS_TELEMETRY_CONFIG_ATTRIBUTE_cargo){ STORE_CONFIG_ATTRIBUTE(string, &attr->value, &telemetry_config_job.cargo); }
+        else if(name == SCS_TELEMETRY_CONFIG_ATTRIBUTE_cargo_mass){ STORE_CONFIG_ATTRIBUTE(float, &attr->value, &telemetry_config_job.cargo_mass); }
+        else if(name == SCS_TELEMETRY_CONFIG_ATTRIBUTE_destination_city_id){ STORE_CONFIG_ATTRIBUTE(string, &attr->value, &telemetry_config_job.destination_city_id); }
+        else if(name == SCS_TELEMETRY_CONFIG_ATTRIBUTE_destination_city){ STORE_CONFIG_ATTRIBUTE(string, &attr->value, &telemetry_config_job.destination_city); }
+        else if(name == SCS_TELEMETRY_CONFIG_ATTRIBUTE_source_city_id){ STORE_CONFIG_ATTRIBUTE(string, &attr->value, &telemetry_config_job.source_city_id); }
+        else if(name == SCS_TELEMETRY_CONFIG_ATTRIBUTE_source_city){ STORE_CONFIG_ATTRIBUTE(string, &attr->value, &telemetry_config_job.source_city); }
+        else if(name == SCS_TELEMETRY_CONFIG_ATTRIBUTE_destination_company_id){ STORE_CONFIG_ATTRIBUTE(string, &attr->value, &telemetry_config_job.destination_company_id); }
+        else if(name == SCS_TELEMETRY_CONFIG_ATTRIBUTE_destination_company){ STORE_CONFIG_ATTRIBUTE(string, &attr->value, &telemetry_config_job.destination_company); }
+        else if(name == SCS_TELEMETRY_CONFIG_ATTRIBUTE_source_company_id){ STORE_CONFIG_ATTRIBUTE(string, &attr->value, &telemetry_config_job.source_company_id); }
+        else if(name == SCS_TELEMETRY_CONFIG_ATTRIBUTE_source_company){ STORE_CONFIG_ATTRIBUTE(string, &attr->value, &telemetry_config_job.source_company); }
+        else if(name == SCS_TELEMETRY_CONFIG_ATTRIBUTE_income){ STORE_CONFIG_ATTRIBUTE(u64, &attr->value, &telemetry_config_job.income); }
+        else if(name == SCS_TELEMETRY_CONFIG_ATTRIBUTE_delivery_time){ STORE_CONFIG_ATTRIBUTE(u32, &attr->value, &telemetry_config_job.delivery_time); }
+        else if(name == SCS_TELEMETRY_CONFIG_ATTRIBUTE_is_cargo_loaded){ STORE_CONFIG_ATTRIBUTE(bool, &attr->value, &telemetry_config_job.is_cargo_loaded); }
+        else if(name == SCS_TELEMETRY_CONFIG_ATTRIBUTE_job_market){ STORE_CONFIG_ATTRIBUTE(string, &attr->value, &telemetry_config_job.job_market); }
+        else if(name == SCS_TELEMETRY_CONFIG_ATTRIBUTE_special_job){ STORE_CONFIG_ATTRIBUTE(bool, &attr->value, &telemetry_config_job.special_job); }
+        else if(name == SCS_TELEMETRY_CONFIG_ATTRIBUTE_planned_distance_km){ STORE_CONFIG_ATTRIBUTE(u32, &attr->value, &telemetry_config_job.planned_distance_km); }
+    }
+}
+
 // API
 
 SCSAPI_VOID telemetry_game_start(const scs_event_t /*event*/, const void *const /*event_info*/, const scs_context_t /*context*/){
@@ -310,6 +343,8 @@ SCSAPI_VOID telemetry_configuration(const scs_event_t /*event*/, const void *con
     const scs_telemetry_configuration_t *info = static_cast<const scs_telemetry_configuration_t *>(event_info);
     std::string id(info->id);
     if(id == SCS_TELEMETRY_CONFIG_truck){ config_store_truck(info); }
+    else if(id == SCS_TELEMETRY_CONFIG_trailer) { config_store_trailer(info); }
+    else if(id == SCS_TELEMETRY_CONFIG_job) { config_store_job(info); }
 
     log(SCS_LOG_TYPE_message, "========== ID: %s ==========", info->id);
     for(const scs_named_value_t *current = info->attributes; current->name; current++){
