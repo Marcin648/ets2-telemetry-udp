@@ -3,6 +3,7 @@
 
 const uint32_t TELE_TRUCK_WHEEL_COUNT = 10;
 const uint32_t TELE_TRAILER_WHEEL_COUNT = 18;
+const uint32_t TELE_STR_SIZE = 64;
 
 #pragma pack(push, 1)
 struct telemetry_fvector_t {
@@ -127,5 +128,34 @@ struct telemetry_trailer_s{
     float wheel_steering[TELE_TRAILER_WHEEL_COUNT];
     float wheel_rotation[TELE_TRAILER_WHEEL_COUNT];
 };
+
+struct telemetry_config_truck_s{
+    char brand_id[TELE_STR_SIZE];
+    char brand[TELE_STR_SIZE];
+    char id[TELE_STR_SIZE];
+    char name[TELE_STR_SIZE];
+    float fuel_capacity;
+    float fuel_warning_factor;
+    float adblue_capacity;
+    float adblue_warning_factor;
+    float air_pressure_warning;
+    float air_pressure_emergency;
+    float oil_pressure_warning;
+    float water_temperature_warning;
+    float battery_voltage_warning;
+    float rpm_limit;
+    uint32_t forward_gear_count;
+    uint32_t reverse_gear_count;
+    uint32_t retarder_step_count;
+    telemetry_fvector_t cabin_position;
+    telemetry_fvector_t head_position;
+    telemetry_fvector_t hook_position;
+    char license_plate[TELE_STR_SIZE];
+    char license_plate_country[TELE_STR_SIZE];
+    char license_plate_country_id[TELE_STR_SIZE];
+    uint32_t wheel_count;
+    telemetry_fvector_t wheel_position[TELE_TRUCK_WHEEL_COUNT];
+};
+
 
 #pragma pack(pop)

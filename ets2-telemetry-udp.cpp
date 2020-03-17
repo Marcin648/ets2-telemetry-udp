@@ -3,12 +3,14 @@
 #include <cstring>
 #include <cstdarg>
 #include <cstdint>
-#include <list>
+#include <functional>
+#include <map>
 #include <scssdk_telemetry.h>
 #include <eurotrucks2/scssdk_eut2.h>
 #include <eurotrucks2/scssdk_telemetry_eut2.h>
 #include <amtrucks/scssdk_ats.h>
 #include <amtrucks/scssdk_telemetry_ats.h>
+
 
 #include <string>
 
@@ -38,6 +40,8 @@
 telemetry_truck_s telemetry_truck;
 telemetry_trailer_s telemetry_trailer;
 telemetry_common_s telemetry_common;
+
+telemetry_config_truck_s telemetry_config_truck;
 
 /*
     Log
@@ -203,6 +207,48 @@ SCSAPI_VOID telemetry_store_dplacement(const scs_string_t /*name*/, const scs_u3
     fplacement->orientation.roll = value->value_dplacement.orientation.roll;
 }
 
+SCSAPI_VOID telemetry_store_string(const scs_string_t /*name*/, const scs_u32_t /*index*/, const scs_value_t *const value, const scs_context_t context){
+    char *string = static_cast<char *>(context);
+    strncpy(string, value->value_string.value, TELE_STR_SIZE-1);
+}
+
+// CONFIG
+
+#define STORE_CONFIG_ATTRIBUTE(type, value, target) telemetry_store_##type("", SCS_U32_NIL, value, target)
+
+void config_store_truck(const scs_telemetry_configuration_t *config){
+    memset(&telemetry_config_truck, 0, sizeof(telemetry_config_truck_s));
+    for(auto *attr = config->attributes; attr->name; attr++){
+        std::string name(attr->name);
+        if(name == SCS_TELEMETRY_CONFIG_ATTRIBUTE_brand_id){ STORE_CONFIG_ATTRIBUTE(string, &attr->value, &telemetry_config_truck.brand_id); }
+        else if(name == SCS_TELEMETRY_CONFIG_ATTRIBUTE_brand){ STORE_CONFIG_ATTRIBUTE(string, &attr->value, &telemetry_config_truck.brand); }
+        else if(name == SCS_TELEMETRY_CONFIG_ATTRIBUTE_id){ STORE_CONFIG_ATTRIBUTE(string, &attr->value, &telemetry_config_truck.id); }
+        else if(name == SCS_TELEMETRY_CONFIG_ATTRIBUTE_name){ STORE_CONFIG_ATTRIBUTE(string, &attr->value, &telemetry_config_truck.name); }
+        else if(name == SCS_TELEMETRY_CONFIG_ATTRIBUTE_fuel_capacity){ STORE_CONFIG_ATTRIBUTE(float, &attr->value, &telemetry_config_truck.fuel_capacity); }
+        else if(name == SCS_TELEMETRY_CONFIG_ATTRIBUTE_fuel_warning_factor){ STORE_CONFIG_ATTRIBUTE(float, &attr->value, &telemetry_config_truck.fuel_warning_factor); }
+        else if(name == SCS_TELEMETRY_CONFIG_ATTRIBUTE_adblue_capacity){ STORE_CONFIG_ATTRIBUTE(float, &attr->value, &telemetry_config_truck.adblue_capacity); }
+        else if(name == SCS_TELEMETRY_CONFIG_ATTRIBUTE_adblue_warning_factor){ STORE_CONFIG_ATTRIBUTE(float, &attr->value, &telemetry_config_truck.adblue_warning_factor); }
+        else if(name == SCS_TELEMETRY_CONFIG_ATTRIBUTE_air_pressure_warning){ STORE_CONFIG_ATTRIBUTE(float, &attr->value, &telemetry_config_truck.air_pressure_warning); }
+        else if(name == SCS_TELEMETRY_CONFIG_ATTRIBUTE_air_pressure_emergency){ STORE_CONFIG_ATTRIBUTE(float, &attr->value, &telemetry_config_truck.air_pressure_emergency); }
+        else if(name == SCS_TELEMETRY_CONFIG_ATTRIBUTE_oil_pressure_warning){ STORE_CONFIG_ATTRIBUTE(float, &attr->value, &telemetry_config_truck.oil_pressure_warning); }
+        else if(name == SCS_TELEMETRY_CONFIG_ATTRIBUTE_water_temperature_warning){ STORE_CONFIG_ATTRIBUTE(float, &attr->value, &telemetry_config_truck.water_temperature_warning); }
+        else if(name == SCS_TELEMETRY_CONFIG_ATTRIBUTE_battery_voltage_warning){ STORE_CONFIG_ATTRIBUTE(float, &attr->value, &telemetry_config_truck.battery_voltage_warning); }
+        else if(name == SCS_TELEMETRY_CONFIG_ATTRIBUTE_rpm_limit){ STORE_CONFIG_ATTRIBUTE(float, &attr->value, &telemetry_config_truck.rpm_limit); }
+        else if(name == SCS_TELEMETRY_CONFIG_ATTRIBUTE_forward_gear_count){ STORE_CONFIG_ATTRIBUTE(u32, &attr->value, &telemetry_config_truck.forward_gear_count); }
+        else if(name == SCS_TELEMETRY_CONFIG_ATTRIBUTE_reverse_gear_count){ STORE_CONFIG_ATTRIBUTE(u32, &attr->value, &telemetry_config_truck.reverse_gear_count); }
+        else if(name == SCS_TELEMETRY_CONFIG_ATTRIBUTE_retarder_step_count){ STORE_CONFIG_ATTRIBUTE(u32, &attr->value, &telemetry_config_truck.retarder_step_count); }
+        else if(name == SCS_TELEMETRY_CONFIG_ATTRIBUTE_cabin_position){ STORE_CONFIG_ATTRIBUTE(fvector, &attr->value, &telemetry_config_truck.cabin_position); }
+        else if(name == SCS_TELEMETRY_CONFIG_ATTRIBUTE_head_position){ STORE_CONFIG_ATTRIBUTE(fvector, &attr->value, &telemetry_config_truck.head_position); }
+        else if(name == SCS_TELEMETRY_CONFIG_ATTRIBUTE_hook_position){ STORE_CONFIG_ATTRIBUTE(fvector, &attr->value, &telemetry_config_truck.hook_position); }
+        else if(name == SCS_TELEMETRY_CONFIG_ATTRIBUTE_license_plate){ STORE_CONFIG_ATTRIBUTE(string, &attr->value, &telemetry_config_truck.license_plate); }
+        else if(name == SCS_TELEMETRY_CONFIG_ATTRIBUTE_license_plate_country){ STORE_CONFIG_ATTRIBUTE(string, &attr->value, &telemetry_config_truck.license_plate_country); }
+        else if(name == SCS_TELEMETRY_CONFIG_ATTRIBUTE_license_plate_country_id){ STORE_CONFIG_ATTRIBUTE(string, &attr->value, &telemetry_config_truck.license_plate_country_id); }
+        else if(name == SCS_TELEMETRY_CONFIG_ATTRIBUTE_wheel_count){ STORE_CONFIG_ATTRIBUTE(u32, &attr->value, &telemetry_config_truck.wheel_count); }
+        else if(name == SCS_TELEMETRY_CONFIG_ATTRIBUTE_wheel_position){ STORE_CONFIG_ATTRIBUTE(fvector, &attr->value, &telemetry_config_truck.wheel_position[attr->index]); }
+
+    }
+}
+
 // API
 
 SCSAPI_VOID telemetry_game_start(const scs_event_t /*event*/, const void *const /*event_info*/, const scs_context_t /*context*/){
@@ -227,16 +273,10 @@ SCSAPI_VOID telemetry_frame_end(const scs_event_t /*event*/, const void *const /
         sendto(net_socket, reinterpret_cast<char *>(&telemetry), sizeof(telemetry), 0, (sockaddr*)(&client_addr), len);
         */
         log(SCS_LOG_TYPE_message, "speed: %f km/s", telemetry_truck.speed * 3.6f);
-        log(SCS_LOG_TYPE_message, "rpm: %f", telemetry_truck.engine_rpm);
-        log(SCS_LOG_TYPE_message, "connected: %i", telemetry_trailer.connected);
-        log(SCS_LOG_TYPE_message, "game time: %i", telemetry_common.game_time);
-        std::string a = "";
-        
-        for(size_t i = 0; i < TELE_TRAILER_WHEEL_COUNT; i++){
-            a += std::to_string(telemetry_trailer.wheel_velocity[i]) + ", ";
-        }
-
-        log(SCS_LOG_TYPE_message, "telemetry_trailer.wheel_velocity: %s", a.c_str());
+        //log(SCS_LOG_TYPE_message, "rpm: %f", telemetry_truck.engine_rpm);
+        //log(SCS_LOG_TYPE_message, "connected: %i", telemetry_trailer.connected);
+        //log(SCS_LOG_TYPE_message, "game time: %i", telemetry_common.game_time);
+        log(SCS_LOG_TYPE_message, "brand name: %s", telemetry_config_truck.brand);
 
         sockaddr_in bind_addr;
         bind_addr.sin_family = AF_INET;
@@ -244,6 +284,134 @@ SCSAPI_VOID telemetry_frame_end(const scs_event_t /*event*/, const void *const /
         bind_addr.sin_port = htons(BIND_PORT);
         sendto(net_socket, reinterpret_cast<char *>(&telemetry_truck), sizeof(telemetry_truck), 0, (sockaddr*)(&bind_addr), sizeof(bind_addr));
     }
+}
+
+SCSAPI_VOID telemetry_configuration(const scs_event_t /*event*/, const void *const event_info, const scs_context_t /*context*/){
+    const scs_telemetry_configuration_t *info = static_cast<const scs_telemetry_configuration_t *>(event_info);
+    std::string id(info->id);
+    if(id == SCS_TELEMETRY_CONFIG_truck){ config_store_truck(info); }
+
+    log(SCS_LOG_TYPE_message, "========== ID: %s ==========", info->id);
+    for(const scs_named_value_t *current = info->attributes; current->name; current++){
+        switch (current->value.type){
+        case SCS_VALUE_TYPE_bool:
+            log(SCS_LOG_TYPE_message,
+                "NAME: %s TYPE: bool INDEX: %u VALUE: %c",
+                current->name,
+                current->index,
+                ((current->value.value_bool.value) ? '1' : '0')
+            );
+            break;
+
+        case SCS_VALUE_TYPE_s32:
+            log(SCS_LOG_TYPE_message,
+                "NAME: %s TYPE: s32 INDEX: %u VALUE: %l",
+                current->name,
+                current->index,
+                current->value.value_s32.value
+            );
+            break;
+
+        case SCS_VALUE_TYPE_u32:
+            log(SCS_LOG_TYPE_message,
+                "NAME: %s TYPE: u32 INDEX: %u VALUE: %lu",
+                current->name,
+                current->index,
+                current->value.value_u32.value
+            );
+            break;
+
+        case SCS_VALUE_TYPE_u64:
+            log(SCS_LOG_TYPE_message,
+                "NAME: %s TYPE: u64 INDEX: %u VALUE: %lu",
+                current->name,
+                current->index,
+                current->value.value_u64.value
+            );
+            break;
+
+        case SCS_VALUE_TYPE_float:
+            log(SCS_LOG_TYPE_message,
+                "NAME: %s TYPE: float INDEX: %u VALUE: %f",
+                current->name,
+                current->index,
+                current->value.value_float.value
+            );
+            break;
+
+        case SCS_VALUE_TYPE_double:
+            log(SCS_LOG_TYPE_message,
+                "NAME: %s TYPE: double INDEX: %u VALUE: %f",
+                current->name,
+                current->index,
+                current->value.value_double.value
+            );
+            break;
+
+        case SCS_VALUE_TYPE_fvector:
+            log(SCS_LOG_TYPE_message,
+                "NAME: %s TYPE: fvector INDEX: %u VALUE: %f %f %f",
+                current->name,
+                current->index,
+                current->value.value_fvector.x,
+                current->value.value_fvector.y,
+                current->value.value_fvector.z
+            );
+            break;
+
+        case SCS_VALUE_TYPE_dvector:
+            log(SCS_LOG_TYPE_message,
+                "NAME: %s TYPE: dvector INDEX: %u VALUE: %f %f %f",
+                current->name,
+                current->index,
+                current->value.value_dvector.x,
+                current->value.value_dvector.y,
+                current->value.value_dvector.z
+            );
+            break;
+
+        case SCS_VALUE_TYPE_euler:
+            log(SCS_LOG_TYPE_message,
+                "NAME: %s TYPE: euler INDEX: %u VALUE: %f %f %f",
+                current->name,
+                current->index,
+                current->value.value_euler.heading,
+                current->value.value_euler.pitch,
+                current->value.value_euler.roll
+            );
+            break;
+
+        case SCS_VALUE_TYPE_fplacement:
+            log(SCS_LOG_TYPE_message,
+                "NAME: %s TYPE: fplacement INDEX: %u",
+                current->name,
+                current->index
+            );
+            break;
+
+        case SCS_VALUE_TYPE_dplacement:
+            log(SCS_LOG_TYPE_message,
+                "NAME: %s TYPE: dplacement INDEX: %u",
+                current->name,
+                current->index
+            );
+            break;
+
+        case SCS_VALUE_TYPE_string:
+            log(SCS_LOG_TYPE_message,
+                "NAME: %s TYPE: string INDEX: %u VALUE: %s",
+                current->name,
+                current->index,
+                current->value.value_string.value
+            );
+            break;
+        
+        default:
+            log(SCS_LOG_TYPE_message, "NAME: %s INDEX: %u VALUE: ???? (%d)", current->name, current->index, current->value.type);
+            break;
+        }
+    }
+    log(SCS_LOG_TYPE_message, "========== END ID: %s ==========", info->id);
 }
 
 SCSAPI_RESULT scs_telemetry_init(const scs_u32_t version, const scs_telemetry_init_params_t *const params){
@@ -263,6 +431,7 @@ SCSAPI_RESULT scs_telemetry_init(const scs_u32_t version, const scs_telemetry_in
     REG_EVENT(SCS_TELEMETRY_EVENT_frame_end, telemetry_frame_end);
     REG_EVENT(SCS_TELEMETRY_EVENT_paused, telemetry_game_pause);
     REG_EVENT(SCS_TELEMETRY_EVENT_started, telemetry_game_start);
+    REG_EVENT(SCS_TELEMETRY_EVENT_configuration, telemetry_configuration);
     
     // Common channel
     REG_CHANNEL(CHANNEL_local_scale, float, &telemetry_common.local_scale);
