@@ -42,6 +42,7 @@ telemetry_trailer_s telemetry_trailer;
 telemetry_common_s telemetry_common;
 
 telemetry_config_truck_s telemetry_config_truck;
+telemetry_config_trailer_s telemetry_config_trailer;
 
 /*
     Log
@@ -245,7 +246,26 @@ void config_store_truck(const scs_telemetry_configuration_t *config){
         else if(name == SCS_TELEMETRY_CONFIG_ATTRIBUTE_license_plate_country_id){ STORE_CONFIG_ATTRIBUTE(string, &attr->value, &telemetry_config_truck.license_plate_country_id); }
         else if(name == SCS_TELEMETRY_CONFIG_ATTRIBUTE_wheel_count){ STORE_CONFIG_ATTRIBUTE(u32, &attr->value, &telemetry_config_truck.wheel_count); }
         else if(name == SCS_TELEMETRY_CONFIG_ATTRIBUTE_wheel_position){ STORE_CONFIG_ATTRIBUTE(fvector, &attr->value, &telemetry_config_truck.wheel_position[attr->index]); }
+    }
+}
 
+void config_store_trailer(const scs_telemetry_configuration_t *config){
+    memset(&telemetry_config_trailer, 0, sizeof(telemetry_config_trailer_s));
+    for(auto *attr = config->attributes; attr->name; attr++){
+        std::string name(attr->name);
+        if(name == SCS_TELEMETRY_CONFIG_ATTRIBUTE_id){ STORE_CONFIG_ATTRIBUTE(string, &attr->value, &telemetry_config_trailer.id); }
+        else if(name == SCS_TELEMETRY_CONFIG_ATTRIBUTE_cargo_accessory_id){ STORE_CONFIG_ATTRIBUTE(string, &attr->value, &telemetry_config_trailer.cargo_accessory_id); }
+        else if(name == SCS_TELEMETRY_CONFIG_ATTRIBUTE_hook_position){ STORE_CONFIG_ATTRIBUTE(fvector, &attr->value, &telemetry_config_trailer.hook_position); }
+        else if(name == SCS_TELEMETRY_CONFIG_ATTRIBUTE_brand_id){ STORE_CONFIG_ATTRIBUTE(string, &attr->value, &telemetry_config_trailer.brand_id); }
+        else if(name == SCS_TELEMETRY_CONFIG_ATTRIBUTE_brand){ STORE_CONFIG_ATTRIBUTE(string, &attr->value, &telemetry_config_trailer.brand); }
+        else if(name == SCS_TELEMETRY_CONFIG_ATTRIBUTE_name){ STORE_CONFIG_ATTRIBUTE(string, &attr->value, &telemetry_config_trailer.name); }
+        else if(name == SCS_TELEMETRY_CONFIG_ATTRIBUTE_chain_type){ STORE_CONFIG_ATTRIBUTE(string, &attr->value, &telemetry_config_trailer.chain_type); }
+        else if(name == SCS_TELEMETRY_CONFIG_ATTRIBUTE_body_type){ STORE_CONFIG_ATTRIBUTE(string, &attr->value, &telemetry_config_trailer.body_type); }
+        else if(name == SCS_TELEMETRY_CONFIG_ATTRIBUTE_license_plate){ STORE_CONFIG_ATTRIBUTE(string, &attr->value, &telemetry_config_trailer.license_plate); }
+        else if(name == SCS_TELEMETRY_CONFIG_ATTRIBUTE_license_plate_country){ STORE_CONFIG_ATTRIBUTE(string, &attr->value, &telemetry_config_trailer.license_plate_country); }
+        else if(name == SCS_TELEMETRY_CONFIG_ATTRIBUTE_license_plate_country_id){ STORE_CONFIG_ATTRIBUTE(string, &attr->value, &telemetry_config_trailer.license_plate_country_id); }
+        else if(name == SCS_TELEMETRY_CONFIG_ATTRIBUTE_wheel_count){ STORE_CONFIG_ATTRIBUTE(u32, &attr->value, &telemetry_config_trailer.wheel_count); }
+        else if(name == SCS_TELEMETRY_CONFIG_ATTRIBUTE_wheel_position){ STORE_CONFIG_ATTRIBUTE(fvector, &attr->value, &telemetry_config_trailer.wheel_position[attr->index]); }
     }
 }
 

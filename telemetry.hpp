@@ -157,5 +157,36 @@ struct telemetry_config_truck_s{
     telemetry_fvector_t wheel_position[TELE_TRUCK_WHEEL_COUNT];
 };
 
+struct telemetry_config_trailer_s{
+    char id[TELE_STR_SIZE];
+    char cargo_accessory_id[TELE_STR_SIZE];
+    telemetry_fvector_t hook_position;
+    char brand_id[TELE_STR_SIZE];
+    char brand[TELE_STR_SIZE];
+    char name[TELE_STR_SIZE];
+    char chain_type[TELE_STR_SIZE];
+    char body_type[TELE_STR_SIZE];
+    char license_plate[TELE_STR_SIZE];
+    char license_plate_country[TELE_STR_SIZE];
+    char license_plate_country_id[TELE_STR_SIZE];
+    uint32_t wheel_count;
+    telemetry_fvector_t wheel_position[TELE_TRAILER_WHEEL_COUNT];
+};
+
+struct telemetry_config_trailer_s{
+    char id[TELE_STR_SIZE];
+    char cargo_accessory_id[TELE_STR_SIZE];
+    telemetry_fvector_t hook_position;
+    char brand_id[TELE_STR_SIZE];
+    char brand[TELE_STR_SIZE];
+    char name[TELE_STR_SIZE];
+    char chain_type[TELE_STR_SIZE];
+    char body_type[TELE_STR_SIZE];
+    char license_plate[TELE_STR_SIZE];
+    char license_plate_country[TELE_STR_SIZE];
+    char license_plate_country_id[TELE_STR_SIZE];
+    uint32_t wheel_count;
+    telemetry_fvector_t wheel_position[TELE_TRAILER_WHEEL_COUNT];
+};
 
 #pragma pack(pop)
