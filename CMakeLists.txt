@@ -4,9 +4,12 @@ project(ets2-telemetry-udp VERSION 0.1.0)
 include(CTest)
 enable_testing()
 
-add_library(ets2-telemetry-udp SHARED "ets2-telemetry-udp.cpp")
+add_library(ets2-telemetry-udp SHARED
+    "src/ets2-telemetry-udp.cpp"
+)
 
 include_directories(ets2-telemetry-udp "./sdk")
+include_directories(ets2-telemetry-udp "./include")
 
 if(WIN32)
     target_link_libraries(ets2-telemetry-udp wsock32 ws2_32)
