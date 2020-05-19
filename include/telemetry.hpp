@@ -3,6 +3,7 @@
 
 const uint32_t TELE_TRUCK_WHEEL_COUNT = 10;
 const uint32_t TELE_TRAILER_WHEEL_COUNT = 18;
+const uint32_t TELE_TRAILER_COUNT = 10;
 const uint32_t TELE_STR_SIZE = 64;
 
 #pragma pack(push, 1)
