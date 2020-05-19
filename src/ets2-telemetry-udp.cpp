@@ -1,15 +1,14 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstdint>
-#include <functional>
-#include <map>
+#include <string>
 #include <scssdk_telemetry.h>
 #include <eurotrucks2/scssdk_eut2.h>
 #include <eurotrucks2/scssdk_telemetry_eut2.h>
 #include <amtrucks/scssdk_ats.h>
 #include <amtrucks/scssdk_telemetry_ats.h>
 
-#include <string>
+
 
 #include "defines.hpp"
 #include "log.hpp"
