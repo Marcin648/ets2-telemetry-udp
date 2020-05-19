@@ -5,6 +5,11 @@ include(CTest)
 enable_testing()
 
 add_library(ets2-telemetry-udp SHARED
+    "src/log.cpp"
+    "src/network.cpp"
+    "src/store.cpp"
+    "src/register.cpp"
+    "src/debug.cpp"
     "src/ets2-telemetry-udp.cpp"
 )
 
