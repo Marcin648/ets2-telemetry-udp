@@ -8,8 +8,6 @@
 #include <amtrucks/scssdk_ats.h>
 #include <amtrucks/scssdk_telemetry_ats.h>
 
-
-
 #include "defines.hpp"
 #include "log.hpp"
 #include "network.hpp"
@@ -49,25 +47,11 @@ SCSAPI_VOID telemetry_frame_start(const scs_event_t /*event*/, const void *const
 }
 
 SCSAPI_VOID telemetry_frame_end(const scs_event_t /*event*/, const void *const /*event_info*/, const scs_context_t /*context*/){
-    // if(net_initialized && net_socket != -1){
-        /*
-        log(SCS_LOG_TYPE_message, "Frame end: %u", rand());
-        struct sockaddr_in client_addr;
-        int len;
-        recvfrom(net_socket, NULL, 0, 0, (sockaddr*)(&client_addr), &len);
-        sendto(net_socket, reinterpret_cast<char *>(&telemetry), sizeof(telemetry), 0, (sockaddr*)(&client_addr), len);
-        */
-        log(SCS_LOG_TYPE_message, "speed: %f km/s", telemetry_truck.speed * 3.6f);
-        //log(SCS_LOG_TYPE_message, "game time: %i", telemetry_common.game_time);
-        log(SCS_LOG_TYPE_message, "brand name: %s", telemetry_config_truck.brand);
-        log(SCS_LOG_TYPE_message, "Trailer %i id: %s", 0, telemetry_config_trailer[0].id);
+    log(SCS_LOG_TYPE_message, "speed: %f km/s", telemetry_truck.speed * 3.6f);
+    log(SCS_LOG_TYPE_message, "brand name: %s", telemetry_config_truck.brand);
+    log(SCS_LOG_TYPE_message, "Trailer %i id: %s", 0, telemetry_config_trailer[0].id);
 
-        // sockaddr_in bind_addr;
-        // bind_addr.sin_family = AF_INET;
-        // bind_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
-        // bind_addr.sin_port = htons(BIND_PORT);
-        // sendto(net_socket, reinterpret_cast<char *>(&telemetry_truck), sizeof(telemetry_truck), 0, (sockaddr*)(&bind_addr), sizeof(bind_addr));
-    // }
+    net_send(reinterpret_cast<uint8_t*>(&telemetry_truck), sizeof(telemetry_truck));
 }
 
 SCSAPI_VOID telemetry_configuration(const scs_event_t /*event*/, const void *const event_info, const scs_context_t /*context*/){
@@ -114,12 +98,11 @@ SCSAPI_RESULT scs_telemetry_init(const scs_u32_t version, const scs_telemetry_in
     log(SCS_LOG_TYPE_message, "Common telemetry size: %zi", sizeof(telemetry_common_s));
     log(SCS_LOG_TYPE_message, "Truck telemetry size: %zi", sizeof(telemetry_truck_s));
     log(SCS_LOG_TYPE_message, "Trailer telemetry size: %zi", sizeof(telemetry_trailer_s));
-    // if(!net_initialized){
-    //     if(!net_init()){
-    //         log(SCS_LOG_TYPE_error, "Failed to initialize network.");
-    //         return SCS_RESULT_generic_error;
-    //     }
-    // }
+
+    if(!net_init()){
+        log(SCS_LOG_TYPE_error, "Failed to initialize network.");
+        return SCS_RESULT_generic_error;
+    }
 
     return SCS_RESULT_ok;
 }

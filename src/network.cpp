@@ -22,6 +22,8 @@ bool net_initialized = false;
 #define closesocket(socket) close(socket)
 #endif
 
+sockaddr_in bind_addr;
+
 bool net_init(){
     if(net_initialized){
         return true;
@@ -53,37 +55,9 @@ bool net_init(){
         return false;
     }
 
-    int non_blocking_success = -1;
-    #ifdef WIN32
-    unsigned long non_blocking = 1;
-    non_blocking_success = ioctlsocket(net_socket, FIONBIO, &non_blocking);
-    #else
-    non_blocking_success = fcntl(net_socket, F_SETFL, O_NONBLOCK);
-    #endif
-
-    if(non_blocking_success != 0){
-        log(SCS_LOG_TYPE_error, "Failed to set socket non blocking.");
-        closesocket(net_socket);
-        net_socket = -1;
-        return false;
-    }
-
-    /*sockaddr_in bind_addr;
     bind_addr.sin_family = AF_INET;
-    bind_addr.sin_addr.s_addr = INADDR_ANY;
+    bind_addr.sin_addr.s_addr = inet_addr(BIND_ADDRESS);
     bind_addr.sin_port = htons(BIND_PORT);
-    
-    int bind_success = bind(net_socket, (sockaddr*)&bind_addr, sizeof(bind_addr));
-    if(bind_success == -1){
-        #ifdef _WIN32
-            log(SCS_LOG_TYPE_error, "Failed to assign address to socket. (%s)", WSAGetLastError());
-        #else
-            log(SCS_LOG_TYPE_error, "Failed to assign address to socket.");
-        #endif
-        closesocket(net_socket);
-        net_socket = -1;
-        return false;
-    }*/
     
     log(SCS_LOG_TYPE_message, "Server start on port %i.", BIND_PORT);
 
@@ -102,5 +76,11 @@ void net_close(){
         #endif
         net_initialized = false;
         log(SCS_LOG_TYPE_message, "Socket closed.");
+    }
+}
+
+void net_send(uint8_t* data, size_t size){
+    if(net_initialized){
+        sendto(net_socket, reinterpret_cast<char*>(data), size, 0, (sockaddr*)(&bind_addr), sizeof(bind_addr));
     }
 }

@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.0.0)
 project(ets2-telemetry-udp VERSION 0.1.0)
 
-include(CTest)
-enable_testing()
+#include(CTest)
+#enable_testing()
 
 add_library(ets2-telemetry-udp SHARED
     "src/log.cpp"
@@ -20,6 +20,8 @@ if(WIN32)
     target_link_libraries(ets2-telemetry-udp wsock32 ws2_32)
 endif()
 target_compile_options(ets2-telemetry-udp PRIVATE -Wall -Wextra)
+
+set_property(TARGET ets2-telemetry-udp PROPERTY CXX_STANDARD 17)
 
 set(CMAKE_SHARED_LIBRARY_PREFIX "")
 
