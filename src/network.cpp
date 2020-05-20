@@ -13,6 +13,7 @@
 #endif
 
 #include "defines.hpp"
+#include "telemetry.hpp"
 #include "log.hpp"
 
 int net_socket = -1;
@@ -84,3 +85,19 @@ void net_send(uint8_t* data, size_t size){
         sendto(net_socket, reinterpret_cast<char*>(data), size, 0, (sockaddr*)(&bind_addr), sizeof(bind_addr));
     }
 }
+
+template <class T>
+void net_send(uint8_t type, T &data){
+    NetPacket<T> packet;
+    packet.type = type;
+    packet.data = data;
+    net_send(reinterpret_cast<uint8_t*>(&packet), sizeof(packet));
+    log(SCS_LOG_TYPE_message, "net_send: %i, %zi", type, sizeof(packet));
+}
+
+template void net_send(uint8_t type, telemetry_common_s &data);
+template void net_send(uint8_t type, telemetry_truck_s &data);
+template void net_send(uint8_t type, telemetry_trailer_s &data);
+template void net_send(uint8_t type, telemetry_config_truck_s &data);
+template void net_send(uint8_t type, telemetry_config_trailer_s &data);
+template void net_send(uint8_t type, telemetry_config_job_s &data);

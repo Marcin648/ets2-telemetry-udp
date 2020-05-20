@@ -20,9 +20,9 @@
     Telemetry
 */
 
+telemetry_common_s telemetry_common;
 telemetry_truck_s telemetry_truck;
 telemetry_trailer_s telemetry_trailer;
-telemetry_common_s telemetry_common;
 
 telemetry_config_truck_s telemetry_config_truck;
 telemetry_config_trailer_s telemetry_config_trailer[TELE_TRAILER_COUNT];
@@ -49,9 +49,11 @@ SCSAPI_VOID telemetry_frame_start(const scs_event_t /*event*/, const void *const
 SCSAPI_VOID telemetry_frame_end(const scs_event_t /*event*/, const void *const /*event_info*/, const scs_context_t /*context*/){
     log(SCS_LOG_TYPE_message, "speed: %f km/s", telemetry_truck.speed * 3.6f);
     log(SCS_LOG_TYPE_message, "brand name: %s", telemetry_config_truck.brand);
-    log(SCS_LOG_TYPE_message, "Trailer %i id: %s", 0, telemetry_config_trailer[0].id);
+    log(SCS_LOG_TYPE_message, "trailer %i id: %s", 0, telemetry_config_trailer[0].id);
 
-    net_send(reinterpret_cast<uint8_t*>(&telemetry_truck), sizeof(telemetry_truck));
+    net_send(TELE_PACKET_COMMON, telemetry_common);
+    net_send(TELE_PACKET_TRUCK, telemetry_truck);
+    net_send(TELE_PACKET_TRAILER, telemetry_trailer);
 }
 
 SCSAPI_VOID telemetry_configuration(const scs_event_t /*event*/, const void *const event_info, const scs_context_t /*context*/){
@@ -62,11 +64,19 @@ SCSAPI_VOID telemetry_configuration(const scs_event_t /*event*/, const void *con
         std::string trailer_id = SCS_TELEMETRY_CONFIG_trailer "." + std::to_string(i);
         if(id == trailer_id){
             config_store_trailer(info, telemetry_config_trailer[i]);
+            net_send(TELE_PACKET_CONFIG_TRAILER, telemetry_config_trailer[i]);
         }
     }
 
-    if(id == SCS_TELEMETRY_CONFIG_truck){ config_store_truck(info, telemetry_config_truck); }
-    else if(id == SCS_TELEMETRY_CONFIG_job) { config_store_job(info, telemetry_config_job); }
+    if(id == SCS_TELEMETRY_CONFIG_truck){
+        config_store_truck(info, telemetry_config_truck);
+        net_send(TELE_PACKET_CONFIG_TRUCK, telemetry_config_truck);
+    }
+    
+    if(id == SCS_TELEMETRY_CONFIG_job) {
+        config_store_job(info, telemetry_config_job);
+        net_send(TELE_PACKET_CONFIG_JOB, telemetry_config_job);
+    }
 
     debug_print_config(info);
 

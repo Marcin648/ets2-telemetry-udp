@@ -6,6 +6,16 @@ const uint32_t TELE_TRAILER_WHEEL_COUNT = 18;
 const uint32_t TELE_TRAILER_COUNT = 10;
 const uint32_t TELE_STR_SIZE = 64;
 
+enum TELE_PACKET{
+    TELE_PACKET_COMMON = 0,
+    TELE_PACKET_TRUCK = 1,
+    TELE_PACKET_TRAILER = 2,
+
+    TELE_PACKET_CONFIG_TRUCK = 100,
+    TELE_PACKET_CONFIG_TRAILER = 101,
+    TELE_PACKET_CONFIG_JOB = 102
+};
+
 #pragma pack(push, 1)
 struct telemetry_fvector_t {
     float x;
