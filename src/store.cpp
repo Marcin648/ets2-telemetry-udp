@@ -61,6 +61,7 @@ SCSAPI_VOID telemetry_store_dplacement(const scs_string_t /*name*/, const scs_u3
 
 SCSAPI_VOID telemetry_store_string(const scs_string_t /*name*/, const scs_u32_t /*index*/, const scs_value_t *const value, const scs_context_t context){
     char *string = static_cast<char *>(context);
+    memset(string,'\0', TELE_STR_SIZE);
     strncpy(string, value->value_string.value, TELE_STR_SIZE-1);
 }
 
