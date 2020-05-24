@@ -169,6 +169,7 @@ struct telemetry_config_truck_s{
 };
 
 struct telemetry_config_trailer_s{
+    uint8_t index;
     char id[TELE_STR_SIZE];
     char cargo_accessory_id[TELE_STR_SIZE];
     telemetry_fvector_t hook_position;

@@ -65,6 +65,7 @@ SCSAPI_VOID telemetry_configuration(const scs_event_t /*event*/, const void *con
     for(size_t i = 0; i < TELE_TRAILER_COUNT; i++){
         std::string trailer_id = SCS_TELEMETRY_CONFIG_trailer "." + std::to_string(i);
         if(id == trailer_id){
+            telemetry_config_trailer[i].index = i;
             config_store_trailer(info, telemetry_config_trailer[i]);
             net_send(TELE_PACKET_CONFIG_TRAILER, telemetry_config_trailer[i]);
         }
@@ -95,7 +96,6 @@ SCSAPI_RESULT scs_telemetry_init(const scs_u32_t version, const scs_telemetry_in
     register_for_event = version_params->register_for_event;
     register_for_channel = version_params->register_for_channel;
     
-
     register_event(SCS_TELEMETRY_EVENT_frame_start, telemetry_frame_start);
     register_event(SCS_TELEMETRY_EVENT_frame_end, telemetry_frame_end);
     register_event(SCS_TELEMETRY_EVENT_paused, telemetry_game_pause);
