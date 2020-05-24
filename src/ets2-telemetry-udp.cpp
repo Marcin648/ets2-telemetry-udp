@@ -47,9 +47,11 @@ SCSAPI_VOID telemetry_frame_start(const scs_event_t /*event*/, const void *const
 }
 
 SCSAPI_VOID telemetry_frame_end(const scs_event_t /*event*/, const void *const /*event_info*/, const scs_context_t /*context*/){
+    #ifndef NDEBUG
     log(SCS_LOG_TYPE_message, "speed: %f km/s", telemetry_truck.speed * 3.6f);
     log(SCS_LOG_TYPE_message, "brand name: %s", telemetry_config_truck.brand);
     log(SCS_LOG_TYPE_message, "trailer %i id: %s", 0, telemetry_config_trailer[0].id);
+    #endif
 
     net_send(TELE_PACKET_COMMON, telemetry_common);
     net_send(TELE_PACKET_TRUCK, telemetry_truck);
