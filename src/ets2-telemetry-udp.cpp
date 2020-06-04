@@ -50,7 +50,7 @@ SCSAPI_VOID telemetry_frame_end(const scs_event_t /*event*/, const void *const /
     #ifndef NDEBUG
     log(SCS_LOG_TYPE_message, "speed: %f km/s", telemetry_truck.speed * 3.6f);
     log(SCS_LOG_TYPE_message, "brand name: %s", telemetry_config_truck.brand);
-    log(SCS_LOG_TYPE_message, "trailer %i id: %s", 0, telemetry_config_trailer[0].id);
+    log(SCS_LOG_TYPE_message, "trailer %i id: %s", telemetry_config_trailer[0].index, telemetry_config_trailer[0].id);
     #endif
 
     net_send(TELE_PACKET_COMMON, telemetry_common);
@@ -65,8 +65,8 @@ SCSAPI_VOID telemetry_configuration(const scs_event_t /*event*/, const void *con
     for(size_t i = 0; i < TELE_TRAILER_COUNT; i++){
         std::string trailer_id = SCS_TELEMETRY_CONFIG_trailer "." + std::to_string(i);
         if(id == trailer_id){
-            telemetry_config_trailer[i].index = i;
             config_store_trailer(info, telemetry_config_trailer[i]);
+            telemetry_config_trailer[i].index = i;
             net_send(TELE_PACKET_CONFIG_TRAILER, telemetry_config_trailer[i]);
         }
     }

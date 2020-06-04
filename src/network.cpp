@@ -92,7 +92,10 @@ void net_send(uint8_t type, T &data){
     packet.type = type;
     packet.data = data;
     net_send(reinterpret_cast<uint8_t*>(&packet), sizeof(packet));
+    
+    #ifndef NDEBUG
     log(SCS_LOG_TYPE_message, "net_send: %i, %zi", type, sizeof(packet));
+    #endif
 }
 
 template void net_send(uint8_t type, telemetry_common_s &data);
