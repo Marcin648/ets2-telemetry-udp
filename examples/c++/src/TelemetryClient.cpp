@@ -52,6 +52,14 @@ bool TelemetryClient::connect(const char* ip, uint16_t port){
     bind_addr.sin_addr.s_addr = inet_addr(ip);
     bind_addr.sin_port = htons(port);
     
+    const char socket_reuseaddr = 1;
+    int net_reuse = setsockopt(net_socket, SOL_SOCKET, SO_REUSEADDR, &socket_reuseaddr, sizeof(socket_reuseaddr));
+    if(net_reuse != 0){
+        std::cerr << "Failed to set reuse socket address." << std::endl;
+        this->close();
+        return false;
+    }
+
     int net_bind = bind(net_socket, (const struct sockaddr *)&bind_addr, sizeof(bind_addr));
     if(net_bind < 0){
         std::cerr << "Failed to bind socket." << std::endl;
