@@ -2,8 +2,8 @@
 
 #include "log.hpp"
 
+#ifndef NDEBUG
 void debug_print_config(const scs_telemetry_configuration_t *info){
-    #ifndef NDEBUG
     log(SCS_LOG_TYPE_message, "========== ID: %s ==========", info->id);
     for(const scs_named_value_t *current = info->attributes; current->name; current++){
         switch (current->value.type){
@@ -125,5 +125,5 @@ void debug_print_config(const scs_telemetry_configuration_t *info){
         }
     }
     log(SCS_LOG_TYPE_message, "========== END ID: %s ==========", info->id);
-    #endif
 }
+#endif

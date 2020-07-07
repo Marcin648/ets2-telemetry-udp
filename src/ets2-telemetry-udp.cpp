@@ -81,7 +81,9 @@ SCSAPI_VOID telemetry_configuration(const scs_event_t /*event*/, const void *con
         net_send(TELE_PACKET_CONFIG_JOB, telemetry_config_job);
     }
 
+    #ifndef NDEBUG
     debug_print_config(info);
+    #endif
 
 }
 
