@@ -3,13 +3,13 @@
 
 #include "TelemetryClient.hpp"
 
-#define BIND_ADDRESS "127.0.0.1"
-#define BIND_PORT 23444
+#define SERVER_ADDRESS "127.0.0.1"
+#define SERVER_PORT 23444
 
 int main(int, char**) {
-    TelemetryClient telemetry;
+    TelemetryClient telemetry = TelemetryClient();
 
-    if(!telemetry.connect(BIND_ADDRESS, BIND_PORT)){
+    if(!telemetry.connect(SERVER_ADDRESS, SERVER_PORT)){
         return -1;
     }
 
