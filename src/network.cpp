@@ -85,7 +85,7 @@ bool net_init(){
     bind_addr.sin_addr.s_addr = INADDR_ANY;
     bind_addr.sin_port = htons(BIND_PORT);
     
-    int bind_success = bind(net_socket, (sockaddr*)&bind_addr, sizeof(bind_addr));	
+    int bind_success = bind(net_socket, reinterpret_cast<sockaddr*>(&bind_addr), sizeof(bind_addr));	
     if(bind_success == -1){
         #ifdef _WIN32	
             log(SCS_LOG_TYPE_error, "Failed to assign address to socket. (%s)", WSAGetLastError());	
@@ -123,7 +123,13 @@ void net_accept(){
     NetPacket<uint8_t> packet;
     sockaddr_in client_addr = sockaddr_in();
     int client_addr_len = sizeof(client_addr);
-    ssize_t recived = recvfrom(net_socket, (char *)&packet, sizeof(packet), 0, (sockaddr*)&client_addr, &client_addr_len);
+    ssize_t recived = recvfrom(
+        net_socket,
+        reinterpret_cast<char*>(&packet),
+        sizeof(packet), 0,
+        reinterpret_cast<sockaddr*>(&client_addr),
+        &client_addr_len
+    );
     if(recived == sizeof(packet)){
         if(packet.type == TELE_PACKET_HEARTBEAT && packet.data == 0xFF){
             auto it = std::find_if(clients.begin(), clients.end(), [&](Client &client){
@@ -138,10 +144,10 @@ void net_accept(){
                 log(
                     SCS_LOG_TYPE_message,
                     "New client connected: %hhu.%hhu.%hhu.%hhu:%hu",
-                    ((uint8_t*)&client.ip.sin_addr)[0],
-                    ((uint8_t*)&client.ip.sin_addr)[1],
-                    ((uint8_t*)&client.ip.sin_addr)[2],
-                    ((uint8_t*)&client.ip.sin_addr)[3],
+                    reinterpret_cast<uint8_t*>(&client.ip.sin_addr)[0],
+                    reinterpret_cast<uint8_t*>(&client.ip.sin_addr)[1],
+                    reinterpret_cast<uint8_t*>(&client.ip.sin_addr)[2],
+                    reinterpret_cast<uint8_t*>(&client.ip.sin_addr)[3],
                     ntohs(client.ip.sin_port)
                 );
             }else{
@@ -160,15 +166,22 @@ void net_send(uint8_t* data, size_t size){
                 log(
                     SCS_LOG_TYPE_message,
                     "Client disconnected: %hhu.%hhu.%hhu.%hhu:%hu",
-                    ((uint8_t*)&it->ip.sin_addr)[0],
-                    ((uint8_t*)&it->ip.sin_addr)[1],
-                    ((uint8_t*)&it->ip.sin_addr)[2],
-                    ((uint8_t*)&it->ip.sin_addr)[3],
+                    reinterpret_cast<uint8_t*>(&it->ip.sin_addr)[0],
+                    reinterpret_cast<uint8_t*>(&it->ip.sin_addr)[1],
+                    reinterpret_cast<uint8_t*>(&it->ip.sin_addr)[2],
+                    reinterpret_cast<uint8_t*>(&it->ip.sin_addr)[3],
                     ntohs(it->ip.sin_port)
                 );
                 it = clients.erase(it);
             }else{
-                sendto(net_socket, reinterpret_cast<char*>(data), size, 0, (sockaddr*)(&it->last_time), sizeof(it->last_time));
+                sendto(
+                    net_socket,
+                    reinterpret_cast<char*>(data),
+                    size,
+                    0,
+                    reinterpret_cast<sockaddr*>(&it->ip),
+                    sizeof(it->ip)
+                );
                 it++;
             }
         }
