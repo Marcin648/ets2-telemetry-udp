@@ -12,6 +12,10 @@
 #include <arpa/inet.h>
 #endif
 
+#include <ctime>
+#include <algorithm>
+#include <list>
+
 #include "defines.hpp"
 #include "telemetry.hpp"
 #include "log.hpp"
@@ -23,7 +27,12 @@ bool net_initialized = false;
 #define closesocket(socket) close(socket)
 #endif
 
-sockaddr_in bind_addr;
+struct Client{
+    sockaddr_in ip;
+    time_t last_time;
+};
+
+std::list<Client> clients;
 
 bool net_init(){
     if(net_initialized){
@@ -56,13 +65,42 @@ bool net_init(){
         return false;
     }
 
+    int non_blocking_success = -1;	
+    #ifdef WIN32	
+        unsigned long non_blocking = 1;	
+        non_blocking_success = ioctlsocket(net_socket, FIONBIO, &non_blocking);	
+    #else	
+        non_blocking_success = fcntl(net_socket, F_SETFL, O_NONBLOCK);	
+    #endif	
+
+    if(non_blocking_success != 0){	
+        log(SCS_LOG_TYPE_error, "Failed to set socket non blocking.");	
+        closesocket(net_socket);	
+        net_socket = -1;	
+        return false;	
+    }
+
+    sockaddr_in bind_addr = sockaddr_in();
     bind_addr.sin_family = AF_INET;
-    bind_addr.sin_addr.s_addr = inet_addr(BIND_ADDRESS);
+    bind_addr.sin_addr.s_addr = INADDR_ANY;
     bind_addr.sin_port = htons(BIND_PORT);
     
+    int bind_success = bind(net_socket, (sockaddr*)&bind_addr, sizeof(bind_addr));	
+    if(bind_success == -1){
+        #ifdef _WIN32	
+            log(SCS_LOG_TYPE_error, "Failed to assign address to socket. (%s)", WSAGetLastError());	
+        #else	
+            log(SCS_LOG_TYPE_error, "Failed to assign address to socket.");	
+        #endif	
+        closesocket(net_socket);	
+        net_socket = -1;	
+        return false;	
+    }
+
     log(SCS_LOG_TYPE_message, "Server start on port %i.", BIND_PORT);
 
     net_initialized = true;
+    clients.clear();
     return true;
 }
 
@@ -76,13 +114,64 @@ void net_close(){
         WSACleanup();
         #endif
         net_initialized = false;
+        clients.clear();
         log(SCS_LOG_TYPE_message, "Socket closed.");
+    }
+}
+
+void net_accept(){
+    NetPacket<uint8_t> packet;
+    sockaddr_in client_addr = sockaddr_in();
+    int client_addr_len = sizeof(client_addr);
+    ssize_t recived = recvfrom(net_socket, (char *)&packet, sizeof(packet), 0, (sockaddr*)&client_addr, &client_addr_len);
+    if(recived == sizeof(packet)){
+        if(packet.type == TELE_PACKET_HEARTBEAT && packet.data == 0xFF){
+            auto it = std::find_if(clients.begin(), clients.end(), [&](Client &client){
+                //TODO: compare address
+                return client.ip.sin_port == client_addr.sin_port;
+            });
+            if(it == clients.end()){
+                Client client;
+                client.ip = client_addr;
+                client.last_time = time(NULL);
+                clients.push_back(client);
+                log(
+                    SCS_LOG_TYPE_message,
+                    "New client connected: %hhu.%hhu.%hhu.%hhu:%hu",
+                    ((uint8_t*)&client.ip.sin_addr)[0],
+                    ((uint8_t*)&client.ip.sin_addr)[1],
+                    ((uint8_t*)&client.ip.sin_addr)[2],
+                    ((uint8_t*)&client.ip.sin_addr)[3],
+                    ntohs(client.ip.sin_port)
+                );
+            }else{
+                it->last_time = time(NULL);
+            }
+        }
     }
 }
 
 void net_send(uint8_t* data, size_t size){
     if(net_initialized){
-        sendto(net_socket, reinterpret_cast<char*>(data), size, 0, (sockaddr*)(&bind_addr), sizeof(bind_addr));
+        time_t time_now = time(NULL);
+        for(auto it = clients.begin(); it != clients.end();){
+            double delta_time = difftime(time_now, it->last_time);
+            if(delta_time > CLIENT_TIMEOUT){
+                log(
+                    SCS_LOG_TYPE_message,
+                    "Client disconnected: %hhu.%hhu.%hhu.%hhu:%hu",
+                    ((uint8_t*)&it->ip.sin_addr)[0],
+                    ((uint8_t*)&it->ip.sin_addr)[1],
+                    ((uint8_t*)&it->ip.sin_addr)[2],
+                    ((uint8_t*)&it->ip.sin_addr)[3],
+                    ntohs(it->ip.sin_port)
+                );
+                it = clients.erase(it);
+            }else{
+                sendto(net_socket, reinterpret_cast<char*>(data), size, 0, (sockaddr*)(&it->last_time), sizeof(it->last_time));
+                it++;
+            }
+        }
     }
 }
 

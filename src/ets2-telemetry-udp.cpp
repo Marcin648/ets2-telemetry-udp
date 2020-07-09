@@ -32,8 +32,6 @@ telemetry_config_job_s telemetry_config_job;
     SCS API
 */
 
-// API
-
 SCSAPI_VOID telemetry_game_start(const scs_event_t /*event*/, const void *const /*event_info*/, const scs_context_t /*context*/){
     telemetry_common.game_paused = 0;
 }
@@ -53,6 +51,7 @@ SCSAPI_VOID telemetry_frame_end(const scs_event_t /*event*/, const void *const /
     log(SCS_LOG_TYPE_message, "trailer %i id: %s", telemetry_config_trailer[0].index, telemetry_config_trailer[0].id);
     #endif
 
+    net_accept();
     net_send(TELE_PACKET_COMMON, telemetry_common);
     net_send(TELE_PACKET_TRUCK, telemetry_truck);
     net_send(TELE_PACKET_TRAILER, telemetry_trailer);

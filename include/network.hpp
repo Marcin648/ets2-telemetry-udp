@@ -19,6 +19,7 @@ struct NetPacket{
 
 bool net_init();
 void net_close();
+void net_accept();
 void net_send(uint8_t* data, size_t size);
 
 template <class T>
