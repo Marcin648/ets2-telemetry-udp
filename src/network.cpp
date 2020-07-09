@@ -122,7 +122,11 @@ void net_close(){
 void net_accept(){
     NetPacket<uint8_t> packet;
     sockaddr_in client_addr = sockaddr_in();
+    #ifdef _WIN32
     int client_addr_len = sizeof(client_addr);
+    #else
+    socklen_t client_addr_len = sizeof(client_addr);
+    #endif
     ssize_t recived = recvfrom(
         net_socket,
         reinterpret_cast<char*>(&packet),
