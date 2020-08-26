@@ -1,3 +1,4 @@
 .vscode
+.pyc
 build
 ets2-telemetry-udp.code-workspace
