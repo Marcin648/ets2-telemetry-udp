@@ -19,7 +19,12 @@ include_directories(ets2-telemetry-udp "./include")
 if(WIN32)
     target_link_libraries(ets2-telemetry-udp wsock32 ws2_32)
 endif()
-target_compile_options(ets2-telemetry-udp PRIVATE -Wall -Wextra)
+
+if (MSVC)
+    target_compile_options(ets2-telemetry-udp PUBLIC /W4 /WX /O2)
+else()
+    target_compile_options(ets2-telemetry-udp PUBLIC -Wall -Wextra -O3)
+endif()
 
 set_property(TARGET ets2-telemetry-udp PROPERTY CXX_STANDARD 17)
 
