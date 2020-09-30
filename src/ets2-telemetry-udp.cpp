@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstdint>
+#include <ctime>
 #include <string>
 #include <scssdk_telemetry.h>
 #include <eurotrucks2/scssdk_eut2.h>
@@ -51,10 +52,27 @@ SCSAPI_VOID telemetry_frame_end(const scs_event_t /*event*/, const void *const /
     log(SCS_LOG_TYPE_message, "trailer %i id: %s", telemetry_config_trailer[0].index, telemetry_config_trailer[0].id);
     #endif
 
+    static clock_t send_last_time = clock();
+    static clock_t send_config_last_time = clock();
+    clock_t time_now = clock();
+
     net_accept();
-    net_send(TELE_PACKET_COMMON, telemetry_common);
-    net_send(TELE_PACKET_TRUCK, telemetry_truck);
-    net_send(TELE_PACKET_TRAILER, telemetry_trailer);
+    if(difftime(time_now, send_last_time) >= CLOCKS_PER_SEC/SEND_RATE_MAX){
+        net_send(TELE_PACKET_COMMON, telemetry_common);
+        net_send(TELE_PACKET_TRUCK, telemetry_truck);
+        net_send(TELE_PACKET_TRAILER, telemetry_trailer);
+        send_last_time = time_now;
+
+        if(difftime(time_now, send_config_last_time) >= CLOCKS_PER_SEC/SEND_RATE_CONFIG){
+            net_send(TELE_PACKET_CONFIG_TRUCK, telemetry_config_truck);
+            net_send(TELE_PACKET_CONFIG_JOB, telemetry_config_job);
+
+            for(auto &config_trailer : telemetry_config_trailer){
+                net_send(TELE_PACKET_CONFIG_TRAILER, config_trailer);
+            }
+            send_config_last_time = time_now;
+        }
+    }
 }
 
 SCSAPI_VOID telemetry_configuration(const scs_event_t /*event*/, const void *const event_info, const scs_context_t /*context*/){
